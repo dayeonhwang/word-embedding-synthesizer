@@ -1,0 +1,9 @@
+.DS_Store
+.Python bin/ include/ lib/ pip-selfcheck.json
+.Python
+bin/activate bin/activate.csh bin/activate.fish bin/activate_this.py bin/easy_install bin/easy_install-3.6 bin/pip bin/pip3 bin/pip3.6 bin/python bin/python-config bin/python3 bin/python3.6 bin/wheel
+bin/
+include/
+lib/
+pip-selfcheck.json
+result.csv
