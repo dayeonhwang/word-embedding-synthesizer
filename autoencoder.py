@@ -10,7 +10,8 @@ from sklearn.utils import shuffle
 
 # TO DO:
 # 1. data processing to script
-# 2. expand to 3 (or 5) hidden layers
+# 2. expand to 3 or 5 hidden layers
+# 3. test on randomized vector
 
 # set random seed value
 RANDOM_SEED = 50
@@ -191,21 +192,21 @@ def main():
 		# write file for GraphVisualizer
 		file_writer = tf.summary.FileWriter('model/', sess.graph)
 
-		# print instruction to launch Tensorflow @localhost:6006
-		print("Run the Tensorflow with the command: %s" % ("tensorboard --logdir data/"))
-
-	  	# get output of hidden layer node("Variable") from TensorFlow session
-		layer1_output = tf.get_default_graph().get_tensor_by_name("Variable:0")
+	  	# get output of hidden layer node("Variable_1") from TensorFlow session
+		layer1_output = tf.get_default_graph().get_tensor_by_name("Variable_1:0")
 		
 		# save output as a new synthesized word embedding set
-		syn_embedding = sess.run(layer1_output) #(199, 50)
+		syn_embed = sess.run(layer1_output) #(100,199)
 
 		# close TensorFlow session
 		sess.close()
 
 		# write CSV file for a new embedding set
-		syn_embedding = np.transpose(syn_embedding)
-		pd.DataFrame(syn_embedding).to_csv('data/syn_embedding.csv')
+		print("New embedding saved with size of %s at %s" % (str(syn_embed.shape), 'data/syn_embed.csv'))
+		pd.DataFrame(syn_embed).to_csv('data/syn_embed.csv')
+
+		# print instruction to launch Tensorflow
+		print("Run the Tensorflow with the command: %s" % ("tensorboard --logdir data/"))
 
 if __name__ == '__main__':
 	main()
