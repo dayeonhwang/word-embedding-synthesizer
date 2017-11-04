@@ -8,14 +8,16 @@ from sklearn.utils import shuffle
 # Implementation of a feedforward neural network(MLP) to use it as an autoencoder for word embeddings
 # Requirements: TensorFlow, Pandas, Sklearn, Numpy
 
-# TO DO:
-# 1. data processing to script
-# 2. expand to 3 or 5 hidden layers
-# 3. test on randomized vector
-
 # set random seed value
 RANDOM_SEED = 50
 tf.set_random_seed(RANDOM_SEED)
+
+def read_csv(emb_path):
+	"""read csv file
+	"""
+	emb_set = pd.read_csv(emb_path, encoding='ISO-8859-1')
+
+	return emb_set
 
 def init_weights(shape):
 	"""weight initialization
@@ -34,32 +36,6 @@ def forward(X, w_1, w_2, b_1, b_2):
 
 	return h, y_predict
 
-def concatenate_all_data(d):
-	"""data pre-processing
-	Note: concatenate more than two word embeddings, by using the helper function "concatenate_two_data"
-	"""
-	d_tmp = concatenate_two_data(d[0], d[1])
-	if (len(d) == 2):
-		return d_tmp
-	elif (len(d) > 2):
-		for i in range(2,len(d)-1):
-			d_tmp = concatenate_two_data(d_tmp, d[i])
-		return d_tmp
-
-def concatenate_two_data(d1, d2):
-	"""data pre-processing
-	Note: concatenate two word embeddings, assuming d1 > d2 (if not, switch order) & same number of columns.
-	Dimension of final dataset will be same as d1. If a word exists in only one of embeddings, fill empty cell w/ mean value.
-	"""
-	if (d2.shape[0] > d1.shape[0]):
-		concatenate_data(d2, d1)
-	else: 
-		result = pd.merge(d1, d2, how='left', on='text')
-		result.fillna(result.mean(), inplace=True)
-		# result.to_csv('data/result.csv')
-
-	return result
-
 def split_data(data):
 	"""reading & splitting data
 	Note: split data into training(0.9) and test set(0.1)
@@ -70,16 +46,11 @@ def split_data(data):
 	return train, test
 
 def main():
-	# load word embeddings
-	govt = pd.read_csv('data/govt_40.csv', encoding='ISO-8859-1') #(19928, 101)
-	books = pd.read_csv('data/books_40.csv', encoding='ISO-8859-1') #(17506,101)
-	all_embeddings = [govt, books]
-	input_data = concatenate_all_data(all_embeddings) #(19929,201)
-	input_data = input_data[input_data.columns[2:]]
-	input_data.to_csv('data/input_data.csv')
+	# load pre-processed word embeddings
+	input_emb = read_csv('data/input.csv') #(19928, 101)
 
 	# split data into training & testing sets
-	train, test = split_data(input_data) # train: (17936,201)
+	train, test = split_data(input_emb) # train: (17936,201)
 	train_X = train
 	train_y = train
 
@@ -127,19 +98,6 @@ def main():
 		sess.run(init)
 
 		tf.train.write_graph(sess.graph, "model/",'graph.pbtxt')
-
-		# tf.summary.scalar("Mean Squared Error:", mse)
-		# tf.summary.histogram('weight 1', w_1)
-		# tf.summary.histogram('bias 1', b_1)
-		# tf.summary.histogram('weight 2', w_2)
-		# tf.summary.histogram('bias 2', b_2)
-		# tf.summary.histogram("Hideen layer output", hidden_output)
-		# summary_op = tf.summary.merge_all()
-		# #summary_writer = tf.train.SummaryWriter('./tenIrisSave/logs',graph_def=sess.graph_def)
-		# #summary_writer = tf.summary.FileWriter('data/',sess.graph)
-		# saver = tf.train.Saver([w_1,b_1])
-
-		print("...")
 
 		for epoch in range(100): 
 			# initialize variables
@@ -196,7 +154,7 @@ def main():
 		layer1_output = tf.get_default_graph().get_tensor_by_name("Variable_1:0")
 		
 		# save output as a new synthesized word embedding set
-		syn_embed = sess.run(layer1_output) #(100,199)
+		syn_embed = sess.run(layer1_output) #(h_size,199)
 
 		# close TensorFlow session
 		sess.close()
