@@ -46,6 +46,5 @@ def main():
 
 	print("Final input embedding saved with size of %s at %s" % (str(input_emb.shape), 'data/input.csv'))
 
-
 if __name__ == '__main__':
 	main()
