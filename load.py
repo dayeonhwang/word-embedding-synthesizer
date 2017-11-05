@@ -12,42 +12,39 @@ def read_csv(emb_path):
 
 def concatenate_all_data(d):
 	"""data pre-processing
-	Note: concatenate more than two word embeddings, by using the helper function "concatenate_two_data"
+	Note: concatenate k word embeddings on column "text"
 	"""
-	d_tmp = concatenate_two_data(d[0], d[1])
-	if (len(d) == 2):
-		return d_tmp
-	elif (len(d) > 2):
-		for i in range(2,len(d)-1):
-			d_tmp = concatenate_two_data(d_tmp, d[i])
-		return d_tmp
 
-def concatenate_two_data(d1, d2):
-	"""data pre-processing
-	Note: concatenate two word embeddings, assuming d1 > d2 (if not, switch order) & same number of columns.
-	Dimension of final dataset will be same as d1. 
-	If a word exists in only one of embeddings, fill empty cell w/ random non-empty value from same dataset.
-	"""
-	if (d2.shape[0] > d1.shape[0]):
-		concatenate_data(d2, d1)
-	else: 
-		result = pd.merge(d1, d2, how='left', on='text')
-		result = result[result.columns[1:]]
-		result = result.apply(lambda x: x.fillna(random.choice(x.dropna())), axis=1)
+	df = d[0]
+	for d_next in d[1:]:
+		if (df.shape[0] > d_next.shape[0]):
+			df = pd.merge(df, d_next, how='left', on='text')
+		else:
+			df = pd.merge(d_next, df, how='left', on='text')
 
-	return result
+	return df
 
 def main():
 	# load word embeddings
-	govt = read_csv('data/govt_40.csv') #(19928, 101)
+	agri = read_csv('data/agriculture_40.csv')
+	arts = read_csv('data/arts_40.csv')
 	books = read_csv('data/books_40.csv') #(17506,101)
-	k_embeddings = [govt, books]
+	econ = read_csv('data/econ_40.csv')
+	govt = read_csv('data/govt_40.csv') #(19928, 101)
+	movies = read_csv('data/movies_40.csv')
+	weather = read_csv('data/weather_40.csv')
 
-	# concatenate k embeddings into 1
+	k_embeddings = [agri, arts, books, econ, govt, movies, weather]
+
+	# concatenate k embeddings into 1 & replace empty values with random values
 	input_emb = concatenate_all_data(k_embeddings) #(19929,201)
+	input_emb = input_emb[input_emb.columns[1:]]
+	input_emb = input_emb.apply(lambda x: x.fillna(random.choice(x.dropna())), axis=1)
 
-	# replace NaN(empty) values with random value
+	# save the final input embedding set as a new csv file
 	input_emb.to_csv('data/input.csv', index=False)
+
+	print("Final input embedding saved with size of %s at %s" % (str(input_emb.shape), 'data/input.csv'))
 
 
 if __name__ == '__main__':
