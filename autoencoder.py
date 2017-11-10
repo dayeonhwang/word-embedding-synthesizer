@@ -12,10 +12,10 @@ from sklearn.utils import shuffle
 RANDOM_SEED = 50
 tf.set_random_seed(RANDOM_SEED)
 
-def read_csv(emb_path):
+def read_csv_file(emb_path):
 	"""read csv file
 	"""
-	emb_set = pd.read_csv(emb_path, encoding='ISO-8859-1')
+	emb_set = pd.read_csv(emb_path, encoding='utf-8')
 
 	return emb_set
 
@@ -31,8 +31,8 @@ def forward(X, w_1, w_2, b_1, b_2):
 	"""forward-propagation
 	Note: propagate inputs X through network, return output from hidden layer as "new synthesized word embedding"
 	"""
-	h = tf.add(tf.matmul(X, w_1), b_1) # h: hidden layer (h = x * w_1 + b_1)
-	y_predict = tf.add(tf.matmul(h, w_2), b_2) # y_predict: estimated output (y_hat = h * w_2 + b_2)
+	h = tf.tanh(tf.add(tf.matmul(X, w_1), b_1)) # h: hidden layer (h = x * w_1 + b_1)
+	y_predict = tf.tanh(tf.add(tf.matmul(h, w_2), b_2)) # y_predict: estimated output (y_hat = h * w_2 + b_2)
 
 	return h, y_predict
 
@@ -40,14 +40,14 @@ def split_data(data):
 	"""reading & splitting data
 	Note: split data into training(0.9) and test set(0.1)
 	"""
-	train = data.sample(frac=0.9,random_state=RANDOM_SEED)
+	train = data.sample(frac=0.9, random_state=RANDOM_SEED)
 	test = data.drop(train.index)
 
 	return train, test
 
 def main():
 	# load pre-processed word embeddings
-	input_emb = read_csv('data/input.csv') #(19928, 101)
+	input_emb = read_csv_file('data/input.csv') #(19928, 101)
 
 	# split data into training & testing sets
 	train, test = split_data(input_emb) # train: (17936,201)
@@ -64,7 +64,7 @@ def main():
 
 	# set hidden layer size
 	x_size = train_X.shape[1] # number of input nodes 
-	h_size = 100  # number of hidden nodes(dimension)
+	h_size = 300  # number of hidden nodes(dimension)
 	y_size = train_y.shape[1] # number of outcomes
 
 	# set tf graph input 
@@ -72,7 +72,7 @@ def main():
 	y = tf.placeholder("float", shape=[None, y_size])
 
 	# set model weights
-	w_1 = init_weights((x_size, h_size)) 
+	w_1 = init_weights((x_size, h_size))
 	w_2 = init_weights((h_size, y_size))
 
 	# set bias
@@ -161,7 +161,7 @@ def main():
 
 		# write CSV file for a new embedding set
 		print("New embedding saved with size of %s at %s" % (str(syn_embed.shape), 'data/syn_embed.csv'))
-		pd.DataFrame(syn_embed).to_csv('data/syn_embed.csv')
+		pd.DataFrame(syn_embed).to_csv('data/syn_embed.csv', encoding='utf-8')
 
 		# print instruction to launch Tensorflow
 		print("Run the Tensorflow with the command: %s" % ("tensorboard --logdir data/"))

@@ -8,4 +8,5 @@ lib/
 pip-selfcheck.json
 result.csv
 model/*
-data/*
+data/*.csv
+vecShare_eval/*
