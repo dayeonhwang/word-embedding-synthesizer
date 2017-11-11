@@ -15,7 +15,7 @@ tf.set_random_seed(RANDOM_SEED)
 def read_csv_file(emb_path):
 	"""read csv file
 	"""
-	emb_set = pd.read_csv(emb_path, encoding='utf-8')
+	emb_set = pd.read_csv(emb_path, header=0, encoding='utf-8')
 
 	return emb_set
 

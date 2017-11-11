@@ -8,18 +8,8 @@ import pandas as pd
 def read_csv_file(emb_path):
 	"""read csv file
 	"""
-	emb_set = pd.read_csv(emb_path, encoding='utf-8')
-	# dicts = emb_set.to_dict().values()
-	# with open(emb_path, 'r', encoding='utf-8') as f:
-	# 	reader = csv.reader(f)
-	# 	headers = next(reader)
-	# 	column = {h:[] for h in headers}
-	# 	for row in reader:
-	# 		for h, v in zip(headers, row):
-	# 			column[h].append(v)
-	# with open(emb_path, 'r', encoding='utf-8') as f:
-	# 	reader = csv.reader(f)
-	# 	data = [row for row in reader]
+	emb_set = pd.read_csv(emb_path, header=0, encoding='utf-8')
+
 	return emb_set
 
 def concatenate_all_data(d):
