@@ -40,14 +40,16 @@ def main():
 	# concatenate 3 embeddings per iteration
 	first_emb = [agri, arts, books]
 	first_emb = concatenate_all_data(first_emb)
-	second_emb = [econ, govt, movies]
-	second_emb = concatenate_all_data(second_emb)
-	final_emb = [first_emb, second_emb, weather]
+	# second_emb = [econ, govt, movies]
+	# second_emb = concatenate_all_data(second_emb)
+	# final_emb = [first_emb, second_emb, weather]
 
 	# concatenate k embeddings into 1 & replace empty values with random values
-	input_emb = concatenate_all_data(final_emb)
+	# input_emb = concatenate_all_data(final_emb)
+	input_emb = first_emb
 	input_emb = input_emb[input_emb.columns[1:]]
-	input_emb = input_emb.apply(lambda x: x.fillna(random.choice(x.dropna())), axis=1)
+	input_emb.fillna(0, inplace=True)
+	# input_emb = input_emb.apply(lambda x: x.fillna(random.choice(x.dropna())), axis=1)
 
 	# save the final input embedding set as a new csv file
 	input_emb.to_csv('data/input.csv', index=False, encoding='utf-8')

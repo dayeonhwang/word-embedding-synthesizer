@@ -31,8 +31,8 @@ def forward(X, w_1, w_2, b_1, b_2):
 	"""forward-propagation
 	Note: propagate inputs X through network, return output from hidden layer as "new synthesized word embedding"
 	"""
-	h = tf.tanh(tf.add(tf.matmul(X, w_1), b_1)) # h: hidden layer (h = x * w_1 + b_1)
-	y_predict = tf.tanh(tf.add(tf.matmul(h, w_2), b_2)) # y_predict: estimated output (y_hat = h * w_2 + b_2)
+	h = tf.add(tf.matmul(X, w_1), b_1) # h: hidden layer (h = x * w_1 + b_1)
+	y_predict = tf.add(tf.matmul(h, w_2), b_2) # y_predict: estimated output (y_hat = h * w_2 + b_2)
 
 	return h, y_predict
 
@@ -59,12 +59,12 @@ def main():
 	test = test.drop(validation.index) # test: (996, 201)
 
 	# set batch size
-	batch = 200 # number of words in each batch => epoch: 100 iterations
+	batch = 1000 # number of words in each batch
 	model_path = "model/model.ckpt" # path to save model
 
 	# set hidden layer size
 	x_size = train_X.shape[1] # number of input nodes 
-	h_size = 300  # number of hidden nodes(dimension)
+	h_size = 1000  # number of hidden nodes(dimension)
 	y_size = train_y.shape[1] # number of outcomes
 
 	# set tf graph input 
@@ -112,7 +112,7 @@ def main():
 			last_validation_batch = validation_X.shape[0] % batch
 
 			# compute training accuracy (average of L2 norm)
-			for i in range(0, len(train_X), 200):
+			for i in range(0, len(train_X), batch):
 				if (i + batch < len(train_X)):
 					batch_mse, __ = sess.run([mse,update], feed_dict={X: train_X[i: i+batch], y: train_y[i: i+batch]})
 					i = i + batch
@@ -122,7 +122,7 @@ def main():
 			train_accuracy = total_mse / len(train_X)
 
 			# compute testing accuracy (average of L2 norm)
-			for i in range(0, len(test_X), 200):
+			for i in range(0, len(test_X), batch):
 				if (i + batch < len(train_X)):
 					batch_mse = sess.run(mse, feed_dict={X: test_X[i: i+batch], y: test_y[i: i+batch]})
 					i = i + batch
@@ -132,7 +132,7 @@ def main():
 			test_accuracy = total_mse_test / len(test_X)
 
 			# compute validation accuracy (average of L2 norm)
-			for i in range(0, len(validation_X), 200):
+			for i in range(0, len(validation_X), batch):
 				if (i + batch < len(train_X)):
 					batch_mse = sess.run(mse, feed_dict={X: validation_X[i: i+batch], y: validation_y[i: i+batch]})
 					i = i + batch
